@@ -10,6 +10,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(23, GPIO.IN)
 
 CURRENT_STATION = '/home/pi/pi-radio/current-station'
+NUM_STATIONS = 3
 
 def get_current_station():
     os.system("touch %s" % CURRENT_STATION)
@@ -28,7 +29,7 @@ def play(station):
 
 def play_next_station(channel):
     station = get_current_station() + 1
-    if station > 4:
+    if station > NUM_STATIONS:
         station = 1
     print(str(station))
     play(station)
