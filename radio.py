@@ -9,26 +9,32 @@ import os
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(23, GPIO.IN)
 
-# sets initial station number to channel 8
-station = 8
+CURRENT_STATION = '/home/pi/pi-radio/current-station'
 
-os.system("mpc play " + str(station))
+def get_current_station():
+    os.system("touch %s" % CURRENT_STATION)
+    f = open(CURRENT_STATION, 'r')
+    station = int(f.read() or 1)
+    f.close
+    return station
 
-#initialise previous input variable to 0
-prev_input = 0
-while True:
-  #take a reading from pin 23
-  input = GPIO.input(23)
-  #if the last reading was low and this one high, increase channel by 1
-  if ((not prev_input) and input):
-    # assumes you have 8 radio stations configured
-    station += 1
-    if station > 8:
-       station = 1
+def save_current_station(station):
+    f = open(CURRENT_STATION, 'w')
+    f.write('%d' % station)
+    f.close
+
+def play(station):
     os.system("mpc play " + str(station))
 
-  #update previous input
-  prev_input = input
+def play_next_station(channel):
+    station = get_current_station() + 1
+    if station > 4:
+        station = 1
+    print(str(station))
+    play(station)
+    save_current_station(station)
 
-  #slight pause to debounce
+GPIO.add_event_detect(23, GPIO.RISING, play_next_station)
+while True:
+  # slight pause to debounce
   time.sleep(0.05)
