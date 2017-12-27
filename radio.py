@@ -27,7 +27,7 @@ def save_current_station(station):
 def play(station):
     os.system("mpc play " + str(station))
 
-def play_next_station(channel):
+def play_next_station():
     station = get_current_station() + 1
     if station > NUM_STATIONS:
         station = 1
@@ -35,7 +35,8 @@ def play_next_station(channel):
     play(station)
     save_current_station(station)
 
-GPIO.add_event_detect(23, GPIO.RISING, play_next_station)
+play(get_current_station())
 while True:
-  # slight pause to debounce
-  time.sleep(0.05)
+    channel = GPIO.wait_for_edge(23, GPIO.RISING)
+    if channel is not None:
+        play_next_station()
