@@ -5,12 +5,15 @@
 import RPi.GPIO as GPIO
 import time
 import os
+import subprocess
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(23, GPIO.IN)
 
 CURRENT_STATION = '/home/pi/pi-radio/current-station'
-NUM_STATIONS = 3
+
+def num_stations():
+    return len(filter(lambda x: len(x) > 0, subprocess.check_output(["mpc", "playlist"]).split("\n")))
 
 def get_current_station():
     os.system("touch %s" % CURRENT_STATION)
@@ -29,9 +32,8 @@ def play(station):
 
 def play_next_station():
     station = get_current_station() + 1
-    if station > NUM_STATIONS:
+    if station > num_stations():
         station = 1
-    print(str(station))
     play(station)
     save_current_station(station)
 
